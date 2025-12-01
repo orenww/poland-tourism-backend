@@ -7,9 +7,13 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  // Enable CORS
+  // Enable CORS for production and development
   app.enableCors({
-    origin: 'http://localhost:5173', // Your frontend URL
+    origin: [
+      'http://localhost:5173',
+      'https://poland-tourism-client.vercel.app', // Add your frontend URL when deployed
+      /\.railway\.app$/, // Allow any Railway subdomain
+    ],
     credentials: true,
   });
 
