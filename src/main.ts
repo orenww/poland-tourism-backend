@@ -11,8 +11,9 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:5173',
-      'https://poland-tourism-client.vercel.app', // Add your frontend URL when deployed
-      /\.railway\.app$/, // Allow any Railway subdomain
+      'https://poland-tourism-client.vercel.app',
+      /\.vercel\.app$/,
+      /\.railway\.app$/,
     ],
     credentials: true,
   });
