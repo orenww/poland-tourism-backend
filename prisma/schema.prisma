@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  icon      String?
+  order     Int      @default(0)
+  items     Item[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Item {
+  id              Int       @id @default(autoincrement())
+  name            String
+  description     String
+  categoryId      Int
+  nearLocationIds Json      @default("[]")
+  images          Json      @default("[]")
+  textContent     Json      @default("{}")
+  category        Category  @relation(fields: [categoryId], references: [id])
+  subItems        SubItem[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model SubItem {
+  id          Int      @id @default(autoincrement())
+  itemId      Int
+  sectionType String
+  name        String
+  description String
+  address     String?
+  website     String?
+  priceRange  String?
+  hours       String?
+  ticketPrice String?
+  type        String?
+  benefit     String?
+  images      Json     @default("[]")
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
