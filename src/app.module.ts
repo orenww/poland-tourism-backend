@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { CategoriesModule } from './categories/categories.module';
 import { SubitemsModule } from './subitems/subitems.module';
 import { CacheModule } from './cache/cache.module';
+import { ChainsModule } from './chains/chains.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CacheModule } from './cache/cache.module';
     AuthModule,
     CategoriesModule,
     SubitemsModule,
+    ChainsModule,
   ],
   controllers: [AppController],
   providers: [

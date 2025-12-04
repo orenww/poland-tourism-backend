@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Chain {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  type        String    // "hotel", "restaurant", "attraction", "shopping"
+  benefit     String?   @db.Text
+  website     String?
+  logoUrl     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  subItems    SubItem[]
+}
+
 model Category {
   id        Int      @id @default(autoincrement())
   key       String   @unique
@@ -46,6 +59,8 @@ model SubItem {
   benefit     String?
   images      Json     @default("[]")
   item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  chainId     Int?
+  chain       Chain?    @relation(fields: [chainId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
