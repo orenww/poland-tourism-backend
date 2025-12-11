@@ -10,9 +10,15 @@ import { CategoriesModule } from './categories/categories.module';
 import { SubitemsModule } from './subitems/subitems.module';
 import { CacheModule } from './cache/cache.module';
 import { ChainsModule } from './chains/chains.module';
+import { SubscribersModule } from './subscribers/subscribers.module';
+import { EmailModule } from './email/email.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, // Makes it available everywhere
+    }),
     CacheModule,
     ThrottlerModule.forRoot([
       {
@@ -26,6 +32,8 @@ import { ChainsModule } from './chains/chains.module';
     CategoriesModule,
     SubitemsModule,
     ChainsModule,
+    SubscribersModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [

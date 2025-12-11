@@ -65,3 +65,18 @@ model SubItem {
   updatedAt   DateTime @updatedAt
 }
 
+model Subscriber {
+  id                         Int       @id @default(autoincrement())
+  email                      String    @unique
+  verified                   Boolean   @default(false)
+  verificationToken          String?   @unique
+  verificationTokenExpiresAt DateTime?
+  verifiedAt                 DateTime?
+  subscribedAt               DateTime  @default(now())
+  unsubscribedAt             DateTime?
+  consentGiven               Boolean   @default(true)
+  ipAddress                  String?
+  language                   String    @default("he")
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+}
