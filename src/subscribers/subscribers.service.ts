@@ -17,6 +17,7 @@ export class SubscribersService {
 
   async subscribe(createSubscriberDto: CreateSubscriberDto, ipAddress: string) {
     const { email, language, consentGiven } = createSubscriberDto;
+    console.log('[Subscribe] Starting subscription process for:', email);
 
     // Check if email already exists
     const existingSubscriber = await this.prisma.subscriber.findUnique({
@@ -25,14 +26,24 @@ export class SubscribersService {
 
     // If exists and verified - return error
     if (existingSubscriber && existingSubscriber.verified) {
+      console.log('[Subscribe] Email already verified, rejecting');
       throw new BadRequestException('This email is already subscribed');
     }
 
     const verificationToken = this.generateVerificationToken();
     const verificationTokenExpiresAt = this.getTokenExpiration();
+    console.log(
+      '[Subscribe] Generated token, expires at:',
+      verificationTokenExpiresAt,
+    );
 
     if (existingSubscriber && !existingSubscriber.verified) {
-      const updated = await this.prisma.subscriber.update({
+      console.log(
+        '[Subscribe] Generated token, expires at:',
+        verificationTokenExpiresAt,
+      );
+
+      await this.prisma.subscriber.update({
         where: { email },
         data: {
           verificationToken,
@@ -44,7 +55,12 @@ export class SubscribersService {
       });
     } else {
       // Create new subscriber
-      const newSubscriber = await this.prisma.subscriber.create({
+      console.log(
+        '[Subscribe] Generated token, expires at:',
+        verificationTokenExpiresAt,
+      );
+
+      await this.prisma.subscriber.create({
         data: {
           email,
           verificationToken,
@@ -56,7 +72,15 @@ export class SubscribersService {
       });
     }
 
-    await this.emailService.sendVerificationEmail(email, verificationToken);
+    // Send verification email
+    console.log('[Subscribe] Sending verification email to:', email);
+    try {
+      await this.emailService.sendVerificationEmail(email, verificationToken);
+      console.log('[Subscribe] Verification email sent successfully');
+    } catch (error) {
+      console.error('[Subscribe] Failed to send email:', error);
+      throw error;
+    }
 
     return { message: 'Verification email sent. Please check your inbox.' };
   }
@@ -67,9 +91,20 @@ export class SubscribersService {
       where: { verificationToken },
     });
 
-    // If exists and verified - return error
+    // If no token found, check if already verified
     if (!existingSubscriber) {
-      throw new NotFoundException('Invalid or expired verification token');
+      const alreadyVerified = await this.prisma.subscriber.findFirst({
+        where: {
+          verified: true,
+          verificationToken: null,
+        },
+      });
+
+      if (alreadyVerified) {
+        return { message: 'Email already verified', alreadyVerified: true };
+      }
+
+      throw new NotFoundException('Invalid verification token');
     }
 
     if (
@@ -79,7 +114,7 @@ export class SubscribersService {
       throw new BadRequestException('Verification token has expired');
     }
 
-    const updated = await this.prisma.subscriber.update({
+    await this.prisma.subscriber.update({
       where: { verificationToken },
       data: {
         verified: true,

@@ -45,6 +45,13 @@ export class EmailService {
         `,
     };
 
-    await this.resend.emails.send(msg);
+    const result = await this.resend.emails.send(msg);
+    // Check if email send failed
+    if (result.error) {
+      console.error('Email send failed:', result.error);
+      throw new Error(`Failed to send email: ${result.error.message}`);
+    }
+
+    console.log('Email sent successfully:', result.data);
   }
 }
